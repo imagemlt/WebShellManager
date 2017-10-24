@@ -414,7 +414,7 @@ CURLcode WebShell::GetFile(string filename, string downname) {
 			""
 			"function getRelativePath($from, $to) {"
 			"  // some compatibility fixes for Windows paths"
-			"  $from = rtrim($from, '\/') . '/';"
+			"  $from = rtrim($from, '/') . '/';"
 			"  $from = str_replace('\\', '/', $from);"
 			"  $to   = str_replace('\\', '/', $to);"
 			""

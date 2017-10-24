@@ -64,14 +64,14 @@ public:
 	string encode(string command);
 	string getAddress(){return url;}
 	~WebShell();
-	WebShell operator=(WebShell shell) {
+	/*WebShell operator=(WebShell shell) {
 		this->url = shell.url;
 		this->pass = shell.pass;
 		this->place = shell.place;
 		this->EncryptMethod = shell.EncryptMethod;
 		this->Method = shell.Method;
 		return *this;
-	}
+	}*/
 
 };
 
