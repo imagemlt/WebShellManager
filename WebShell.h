@@ -62,8 +62,9 @@ public:
 	CURLcode ExecSQL(string sql, string db, string&ans);
 	//bool isFileExists(string filename);
 	string encode(string command);
+	string getAddress(){return url;}
 	~WebShell();
-	WebShell operator=(WebShell&shell) {
+	WebShell operator=(WebShell shell) {
 		this->url = shell.url;
 		this->pass = shell.pass;
 		this->place = shell.place;

