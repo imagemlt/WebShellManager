@@ -4,6 +4,11 @@ WebShellManager build on cpp with libcurl
 ```bash
 g++ cryptohelper.cpp curlhelper.cpp WebShell.cpp main.cpp -o test -lcurl
 ```
+## usage
+* list :列出所有的shell
+* delete index:删除指定index的shell
+* add json:添加shell，格式为json
+* execute index 命令:执行命令，当index为all时在所有shell中执行
 
 ## json format:
 ```json
