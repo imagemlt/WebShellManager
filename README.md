@@ -2,7 +2,7 @@
 WebShellManager build on cpp with libcurl
 ## build
 ```bash
-g++ cryptohelper.cpp curlhelper.cpp WebShell.cpp main.cpp -o test -lcurl
+g++ json.hpp cryptohelper.cpp curlhelper.cpp WebShell.cpp main.cpp -o test -lcurl
 ```
 ## usage
 * list :列出所有的shell
