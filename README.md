@@ -25,5 +25,5 @@ g++ json.hpp cryptohelper.cpp curlhelper.cpp WebShell.cpp main.cpp -o test -lcur
 	"method":"GET"
 	}
 ```
-> note:写为单行,例如：add {"address":"http://baidu.com/shell.php","pass":"mdzz","method":"GET"}
-[参考](https://github.com/imagemlt/EasyKnife)
+> note:写为单行,例如：add {"address":"http://baidu.com/shell.php","pass":"mdzz","method":"GET"}  
+具体格式参考[这里](https://github.com/imagemlt/EasyKnife)
