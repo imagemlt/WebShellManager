@@ -36,6 +36,7 @@ private:
 	string SQLuser;
 	string SQLpass;
 	string SQLport;
+	bool initialized;
 public:
 	WebShell() {};
 	
@@ -46,6 +47,7 @@ public:
 	string get_webroot();
 	string get_php_version();
 	string get_kernel_version();
+	void initialize();
 	bool check_connection();
 	void ParseMethod(string meth);
 	void get_disabled_functions();

