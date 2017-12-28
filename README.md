@@ -1,9 +1,16 @@
 # WebShellManager
 WebShellManager build on cpp with libcurl
 ## build
+**动态编译**
 ```bash
-g++ json.hpp cryptohelper.cpp curlhelper.cpp WebShell.cpp main.cpp -o test -lcurl
+g++ json.hpp cryptohelper.cpp curlhelper.cpp WebShell.cpp main.cpp -o test -lcurl -lpthread
 ```
+**静态编译**
+```bash
+g++ json.hpp cryptohelper.cpp curlhelper.cpp WebShell.cpp main.cpp -static -o test -static-libgcc -static-libstdc++ /usr/local/lib/libcurl.a /usr/local/lib/libz.a /usr/local/ssl/lib/libssl.a /usr/local/ssl/lib/libcrypto.a  -ldl -lpthread
+```
+>test文件为x64平台下静态编译好的可执行文件
+
 >note:由于使用[https://github.com/nlohmann/json](https://github.com/nlohmann/json)因此需编译器支持C++11
 ## usage
 * list :列出所有的shell
@@ -19,6 +26,7 @@ g++ json.hpp cryptohelper.cpp curlhelper.cpp WebShell.cpp main.cpp -o test -lcur
 	"address":"地址",
 	"custom":{
 		"addonget":null,
+		"addonpost":null,
 		"encrypt":null,
 		"place":"COOKIE",
 		"placevalue":"xss"
