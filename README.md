@@ -6,6 +6,7 @@ WebShellManager build on cpp with libcurl
 * 支持需要有附加参数的特殊shell
 * 可绕过open_basedir、disable_functions等限制
 * 一键不死shell，维持权限
+* 附有脚本批量生成可用的shell
 
 ## build
 **动态编译**
@@ -53,3 +54,4 @@ g++ json.hpp cryptohelper.cpp curlhelper.cpp WebShell.cpp main.cpp -static -o te
     * placevalue(string): 与place对应，表示参数
     * addonget(object): 附加的get参数键值对，其中如果键与密码重复<+>将被替换为执行的脚本。
     * addonpost(object): 附加的post参数键值对，与上者相同。
+> 所有添加过的shell会以json格式保存于shells.json文件夹下
