@@ -45,4 +45,11 @@ g++ json.hpp cryptohelper.cpp curlhelper.cpp WebShell.cpp main.cpp -static -o te
 	}
 ```
 > note:写为单行,例如：add {"address":"http://baidu.com/shell.php","pass":"mdzz","method":"GET"}  
-具体格式参考[这里](https://github.com/imagemlt/EasyKnife)
+### 详细解释
+  * 格式：json
+  * 参数：
+    * encrypt(string): 加密方法，目前支持BASE64_ENCODE BASE64_DECODE ROT13 PADDING 格式为"加密方法1 加密参数*加密方法2 加密参数"
+    * place(string): 参数位置，值为GET POST COOKIE HEADER 
+    * placevalue(string): 与place对应，表示参数
+    * addonget(object): 附加的get参数键值对，其中如果键与密码重复<+>将被替换为执行的脚本。
+    * addonpost(object): 附加的post参数键值对，与上者相同。
