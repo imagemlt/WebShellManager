@@ -1,5 +1,12 @@
 # WebShellManager
 WebShellManager build on cpp with libcurl
+## features
+* 多个webshell批量管理
+* 支持自定义参数位置及加密方式
+* 支持需要有附加参数的特殊shell
+* 可绕过open_basedir、disable_functions等限制
+* 一键不死shell，维持权限
+
 ## build
 **动态编译**
 ```bash
@@ -12,6 +19,8 @@ g++ json.hpp cryptohelper.cpp curlhelper.cpp WebShell.cpp main.cpp -static -o te
 >test文件为x64平台下静态编译好的可执行文件
 
 >note:由于使用[https://github.com/nlohmann/json](https://github.com/nlohmann/json)因此需编译器支持C++11
+
+
 ## usage
 * list :列出所有的shell
 * delete index:删除指定index的shell
