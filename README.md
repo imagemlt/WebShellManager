@@ -9,6 +9,11 @@ WebShellManager build on cpp with libcurl
 * 附有脚本批量生成可用的shell
 
 ## build
+**CMake**
+```bash
+cmake .
+make
+```
 **动态编译**
 ```bash
 g++ json.hpp cryptohelper.cpp curlhelper.cpp WebShell.cpp main.cpp -o test -lcurl -lpthread
