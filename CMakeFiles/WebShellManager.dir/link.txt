@@ -1,0 +1,1 @@
+/usr/bin/c++     -lcurl -pthread -g   CMakeFiles/WebShellManager.dir/cryptohelper.cpp.o CMakeFiles/WebShellManager.dir/curlhelper.cpp.o CMakeFiles/WebShellManager.dir/main.cpp.o CMakeFiles/WebShellManager.dir/WebShell.cpp.o  -o WebShellManager -rdynamic -lcurl 

