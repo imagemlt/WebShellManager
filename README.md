@@ -22,7 +22,7 @@ g++ json.hpp cryptohelper.cpp curlhelper.cpp WebShell.cpp main.cpp -o test -lcur
 ```bash
 g++ json.hpp cryptohelper.cpp curlhelper.cpp WebShell.cpp main.cpp -static -o test -static-libgcc -static-libstdc++ /usr/local/lib/libcurl.a /usr/local/lib/libz.a /usr/local/ssl/lib/libssl.a /usr/local/ssl/lib/libcrypto.a  -ldl -lpthread
 ```
->test文件为x64平台下静态编译好的可执行文件
+><del>test文件为x64平台下静态编译好的可执行文件</del>
 
 >note:由于使用[https://github.com/nlohmann/json](https://github.com/nlohmann/json)因此需编译器支持C++11
 
