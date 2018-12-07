@@ -287,6 +287,7 @@ int main(){
 					"delete index:delete a shell\n"
 					"execute index command: execute command on a shell or all the shells\n"
 					"push index sourcepath destpath: push file to the remote server\n"
+				"neverdie index: update current shell to neverdie mode\n"
 					<<endl;
 				}
 			}
@@ -297,6 +298,7 @@ int main(){
 				"delete index:delete a shell\n"
 				"execute index command: execute command on a shell or all the shells\n"
 				"push index sourcepath destpath: push file to the remote server\n"
+				"neverdie index: update current shell to neverdie mode\n"
 				<<endl;
 			}
 		}
