@@ -13,7 +13,6 @@ Description:phpwebshell main class
 
 WebShell::WebShell(string addr, METHOD meth, string password, PLACE paramplace,string paramvalue):place(paramplace,paramvalue)
 {
-    cout<<"brand new version"<<endl;
 	this->url = addr;
 	this->Method = meth;
 	this->pass = password;

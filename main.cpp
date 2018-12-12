@@ -123,6 +123,7 @@ template<typename T>T stringToNum(string &str){
 }
 vector<thread> threads;
 int main(){
+    	cout<<"brand new version"<<endl;
 	try{
 		ifstream config("shells.json");
 		if(config.is_open()){
