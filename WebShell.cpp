@@ -94,18 +94,44 @@ CURLcode WebShell::php_exec(string command,string&ans,map<string,string>*addonpa
 	postparams[curlhelper::UrlEncode(commandpos)] = curlhelper::UrlEncode(cryptohelper::base64_encode(command));
 	for (map<string, string>::iterator it = this->addon_post.begin(); it != this->addon_post.end(); it++) {
 		map<string, string>::iterator now = postparams.find(it->first);
-		if (now != postparams.end()) now->second = it->second.replace(it->second.find("@PARAM"), it->second.find("<+>") + 3, now->first);
+		if (now != postparams.end()){
+		size_t place=it->second.find("@PARAM");
+		 now->second = it->second.replace(place,6, now->second);
+		}
 		else postparams[it->first] = it->second;
 	}
 	for (map<string, string>::iterator it = this->addon_get.begin(); it != this->addon_get.end(); it++) {
 		map<string, string>::iterator now = params.find(it->first);
-		if (now != params.end()) now->second = it->second.replace(it->second.find("@PARAM"), it->second.find("<+>") + 3, now->first);
+		if (now != params.end()){
+		size_t place=it->second.find("@PARAM");
+		 now->second = it->second.replace(place,6, now->second);
+		}
 		else params[it->first] = it->second;
 	}
+	for (map<string, string>::iterator it = this->customHeaders.begin(); it != this->customHeaders.end(); it++) {
+		map<string, string>::iterator now = headers.find(it->first);
+		if (now != headers.end()){
+		size_t place=it->second.find("@PARAM");
+		 now->second = it->second.replace(place,6, now->second);
+		}
+		else headers[it->first] = it->second;
+	}
+	for (map<string, string>::iterator it = this->customCookies.begin(); it != this->customCookies.end(); it++) {
+		map<string, string>::iterator now = cookies.find(it->first);
+		if (now != cookies.end()){
+		size_t place=it->second.find("@PARAM");
+		 now->second = it->second.replace(place,6, now->second);
+		}
+		else cookies[it->first] = it->second;
+	}
+	for(auto cook:cookies){
+		cout<<((pair<string,string>)cook).first<<" "<<((pair<string,string>)cook).second<<endl;
+	}
+
 	string websitecallback = "";
 	CURLcode res = curlhelper::post(this->url, websitecallback, &postparams, &headers, &cookies, &params);
-	//cout << websitecallback << endl;
-	//cout << websitecallback << endl;
+
+	
 	size_t beginindex = websitecallback.find(mark);
 	if (beginindex != string::npos) {
 		size_t endindex = websitecallback.find(mark,beginindex+mark.size());
@@ -553,6 +579,12 @@ void WebShell::addAddonGet(string get, string param) {
 }
 void WebShell::addAddonPost(string post, string param) {
 	this->addon_post[curlhelper::UrlEncode(post)] = curlhelper::UrlEncode(param);
+}
+void WebShell::addHeader(string param,string paramvalue){
+	this->customHeaders[param]=paramvalue;
+}
+void WebShell::addCookie(string param,string paramvalue){
+	this->customCookies[curlhelper::UrlEncode(param)]=curlhelper::UrlEncode(paramvalue);
 }
 bool WebShell::check_connection() {
 	string ans;

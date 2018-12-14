@@ -7,6 +7,7 @@ WebShellManager build on cpp with libcurl
 * 可绕过open_basedir、disable_functions等限制
 * 一键不死shell，维持权限
 * 附有脚本批量生成可用的shell
+* 自定义header、cookie
 
 ## build
 **CMake**
@@ -42,6 +43,8 @@ g++ json.hpp cryptohelper.cpp curlhelper.cpp WebShell.cpp main.cpp -static -o te
 	"custom":{
 		"addonget":null,
 		"addonpost":null,
+		"cookies":null,
+		"headers":null,
 		"encrypt":null,
 		"place":"COOKIE",
 		"placevalue":"xss"

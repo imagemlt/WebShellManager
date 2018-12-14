@@ -108,6 +108,18 @@ WebShell parseShell(json shell){
 				temp.addAddonPost(postIter.key(),postIter.value().get<string>());
 			}
 		}
+		if(shell["custom"]["cookies"].is_object()){
+			cout<<"hooray cookie!!"<<endl;
+			for(json::iterator cookieIter=shell["custom"]["cookies"].begin();cookieIter!=shell["custom"]["cookies"].end();cookieIter++){
+				temp.addCookie(cookieIter.key(),cookieIter.value().get<string>());
+				cout<<"add cookie!!!"<<endl;
+			}
+		}
+		if(shell["custom"]["headers"].is_object()){
+			for(json::iterator headerIter=shell["custom"]["headers"].begin();headerIter!=shell["custom"]["headers"].end();++headerIter){
+				temp.addHeader(headerIter.key(),headerIter.value().get<string>());
+			}
+		}
 	}
 	j.push_back(shell);
 	fstream of("shells.json",ios::out);
@@ -151,6 +163,18 @@ int main(){
 							temp.addAddonPost(postIter.key(),postIter.value().get<string>());
 						}
 					}
+					if((*it)["custom"]["cookies"].is_object()){
+			
+			for(json::iterator cookieIter=(*it)["custom"]["cookies"].begin();cookieIter!=(*it)["custom"]["cookies"].end();cookieIter++){
+				temp.addCookie(cookieIter.key(),cookieIter.value().get<string>());
+			
+			}
+		}
+		if((*it)["custom"]["headers"].is_object()){
+			for(json::iterator headerIter=(*it)["custom"]["headers"].begin();headerIter!=(*it)["custom"]["headers"].end();++headerIter){
+				temp.addHeader(headerIter.key(),headerIter.value().get<string>());
+			}
+		}
 				}
 				shells.push_back(temp);
 			}
@@ -280,6 +304,9 @@ int main(){
 					}
 					int shellid=stringToNum<int>(parseRes[1]);
 					threads.push_back(thread(neverdie,shellid));
+				}
+				else if(parseRes[0]=="quit" || parseRes[0]=="q" || parseRes[0]=="Q"){
+					break;
 				}
 				else{
 					cout<<"[+]Usage:\n"

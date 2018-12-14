@@ -32,6 +32,8 @@ private:
 	pair<PLACE,string> place;
 	map<string, string>addon_post;
 	map<string, string>addon_get;
+	map<string,string>customCookies;
+	map<string,string>customHeaders;
 	string SQLhost;
 	string SQLuser;
 	string SQLpass;
@@ -56,6 +58,8 @@ public:
 	void addAddonGet(string param, string value);
 	void setPlace(string place, string paramvlue);
 	void setSQLconnection(string host, string user, string pass, string port = "3306");
+	void addHeader(string param,string paramvalue);
+	void addCookie(string param,string paramvalue);
 	CURLcode ShellCommandExec(string command,string&ans);
 	CURLcode php_exec(string command, string&ans, map<string, string>*addonparams=NULL);
 	CURLcode GetFileList(string&ans,string directory="");
